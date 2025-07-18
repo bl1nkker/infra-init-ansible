@@ -1,0 +1,77 @@
+all:
+  hosts:
+  children:
+    docker:
+      hosts:
+        192.168.32.32: # ui-dev1
+        192.168.32.33: # app-dev1
+        192.168.32.34: # app-dev2
+        192.168.32.35: # db-dev
+    docker_swarm_primary_manager:
+      hosts:
+        192.168.32.34:
+    docker_swarm_managers:
+      hosts:
+        192.168.32.32:
+        192.168.32.33:
+    docker_swarm_workers:
+      hosts:
+        192.168.32.35:
+    lb:
+      hosts:
+        192.168.32.32:
+    nfs_server:
+      hosts:
+        192.168.32.35:
+    nfs_clients:
+      hosts:
+        192.168.32.32:
+        192.168.32.33:
+        192.168.32.34:
+    monitoring_server:
+      hosts:
+        192.168.32.35:
+  vars:
+    primary_if: eth1
+    remote_user: centos
+    firewall_zone: bl1nkker-internal
+    firewall_subnet: 192.168.32.0/24
+
+    proxy_env:
+      no_proxy: ""
+      http_proxy: ""
+      https_proxy: ""
+
+    # disable_proxy_for_repos:
+    #   - repo1
+    #   - repo2
+    #   - repo3
+
+    nfs_path: /nfs
+    nfs_source: 192.168.32.35
+
+    primary_manager_addr: 192.168.32.34
+
+    app_all_nodes:
+      - ui-dev1.novalocal
+      - app-dev1.novalocal
+      - app-dev2.novalocal
+      - db-dev1.novalocal
+    app_ui_nodes:
+      - ui-dev1.novalocal
+    app_api_nodes:
+      - app-dev1.novalocal
+      - app-dev2.novalocal
+      - db-dev1.novalocal
+    app_worker_nodes:
+      - app-dev1.novalocal
+      - app-dev2.novalocal
+      - db-dev1.novalocal
+    app_cache_nodes:
+      - db-dev1.novalocal
+    app_db_primary_nodes:
+      - db-dev1.novalocal
+    app_idp_nodes:
+      - db-dev1.novalocal
+    app_traefik_node: ui-dev1.novalocal
+    app_utilities_node: db-dev1.novalocal
