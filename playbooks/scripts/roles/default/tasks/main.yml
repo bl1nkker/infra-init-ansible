@@ -8,3 +8,74 @@
 - name: Show inventory hostname
   debug:
     var: ansible_hostname
+
+- name: Install prerequisites
+  become: "{{ run_as_root }}"
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+    state: latest
+    update_cache: true
+  when: False
+
+- name: Download Docker GPG key
+  become: "{{ run_as_root }}"
+  ansible.builtin.get_url:
+    url: "{{ docker_apt_key_url }}"
+    dest: /tmp/docker.gpg
+    # rw-r-r
+    mode: "0644"
+  when: False
+
+- name: Add Docker apt GPG key to keyring
+  become: "{{ run_as_root }}"
+  ansible.builtin.command:
+    cmd: gpg --dearmor -o {{ docker_apt_key_path }} /tmp/docker.gpg
+  args:
+    # idempotency. if file exists, skip the task
+    creates: "{{ docker_apt_key_path }}"
+  when: False
+
+- name: Add Docker apt repository
+  become: "{{ run_as_root }}"
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/docker.list
+    content: "{{ docker_repo }}"
+    # rw-r-r
+    mode: "0644"
+  when: False
+
+- name: Update apt
+  become: "{{ run_as_root }}"
+  ansible.builtin.apt:
+    update_cache: true
+  when: False
+
+- name: Install Docker Engine
+  become: "{{ run_as_root }}"
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
+  when: False
+
+- name: Enabling docker
+  become: "{{ run_as_root }}"
+  ansible.builtin.systemd:
+    state: started
+    enabled: true
+    name: docker
+  when: False
+
+- name: Adding users to docker group
+  become: "{{ run_as_root }}"
+  ansible.builtin.shell:
+    cmd: "sudo usermod -aG docker {{ item }}"
+  loop:
+    - "{{ remote_user }}"
+  when: False
