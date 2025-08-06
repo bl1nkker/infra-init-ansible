@@ -95,7 +95,7 @@
         }
       }
       EOL
-  when: True
+  when: False
 
 - name: Restart docker engine
   become: "{{ run_as_root }}"
@@ -125,4 +125,82 @@
 
 - name: Test Docker Pull command
   ansible.builtin.shell: docker pull hello-world
+  when: False
+
+- name: Permit traffic in default zone for ssh service
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    name: OpenSSH
+  when: False
+
+# Remove Nginx HTTP Profile
+- name: Remove Nginx HTTP Profile
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    name: "Nginx HTTP"
+    delete: True
+  when: False
+
+# Allow Nginx Full Profile (HTTP, HTTPS)
+- name: Allow Nginx Full Profile (HTTP, HTTPS)
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    name: "Nginx Full"
+  when: False
+
+- name: "Permitting docker 2376 port for {{ firewall_zone }}"
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 2376
+    proto: tcp
+    src: "{{ firewall_subnet }}"
+  when: False
+
+- name: "Permitting docker port 2376/tcp for {{ firewall_zone }}"
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 2376
+    proto: tcp
+    src: "{{ firewall_subnet }}"
+  when: False
+
+- name: "Permitting docker port 2377/tcp for {{ firewall_zone }}"
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 2377
+    proto: tcp
+    src: "{{ firewall_subnet }}"
+  when: False
+
+- name: "Permitting docker port 7946/tcp for {{ firewall_zone }}"
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 7946
+    proto: tcp
+    src: "{{ firewall_subnet }}"
+  when: False
+
+- name: "Permitting docker port 7946/udp for {{ firewall_zone }}"
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 7946
+    proto: udp
+    src: "{{ firewall_subnet }}"
+  when: False
+
+- name: "Permitting docker port 4789/udp for {{ firewall_zone }}"
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 4789
+    proto: udp
+    src: "{{ firewall_subnet }}"
   when: False
