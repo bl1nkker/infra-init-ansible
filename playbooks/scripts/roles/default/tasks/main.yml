@@ -79,3 +79,50 @@
   loop:
     - "{{ remote_user }}"
   when: False
+
+- name: Creating docker daemon config file
+  become: "{{ run_as_root }}"
+  ansible.builtin.shell:
+    cmd: |-
+      mkdir -p /etc/docker
+      touch /etc/docker/daemon.json
+      cat > /etc/docker/daemon.json <<EOL
+        {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "100m",
+          "max-file": "3"
+        }
+      }
+      EOL
+  when: True
+
+- name: Restart docker engine
+  become: "{{ run_as_root }}"
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: True
+    name: docker
+  when: False
+
+- name: Reset SSH connection to allow user changes to affect 'current login user'
+  ansible.builtin.meta: reset_connection
+
+- name: Docker Login
+  docker_login:
+    username: blinkker
+    password: "{{ docker_password }}"
+    registry_url: "https://index.docker.io/v1/"
+  vars:
+    docker_password: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      66626433643934383336656236383062636433663637383265623765626230656137376639633236
+      3631636365653530633836306530376337326466616336370a346539663038393431303264323034
+      31333564333237323364363734326265343630633639356566393266656536383766343966353932
+      6135363435656538630a636263353062383337663865616631656463323463616666336461316135
+      3966
+  when: False
+
+- name: Test Docker Pull command
+  ansible.builtin.shell: docker pull hello-world
+  when: False
