@@ -16,3 +16,8 @@ this repository provides a basic Ansible template for initial server configurati
 ## Status
 
 Work in progress
+
+# TODO:
+
+- Investigate Traefik
+- Investigate Docker NFS
