@@ -1,0 +1,10 @@
+- hosts: docker
+  become: True
+  tags: dependencies
+  roles:
+    - role: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - name: jsondiff
+          - name: pyyaml
+          - name: docker

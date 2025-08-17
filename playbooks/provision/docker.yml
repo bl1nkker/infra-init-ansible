@@ -3,46 +3,46 @@
   tasks:
     - name: Initialize Docker Swarm
       community.docker.docker_swarm:
-        - state: present
-        - advertise_addr: "{{ primary_manager_addr }}"
+        state: present
+        advertise_addr: "{{ primary_manager_addr }}"
       register: docker_swarm_init_result
 
 - hosts: docker_swarm_managers
   tags: docker-swarm
   vars:
-    - primary_ip: 'vars["ansible_{{ primary_if }}"].ipv4.address'
-    - join_token: "{{ hostvars[groups['docker_swarm_primary_manager'][0]]['docker_swarm_init_result']['swarm_facts']['JoinTokens']['Manager'] }}"
+    primary_ip: 'vars["ansible_{{ primary_if }}"].ipv4.address'
+    join_token: "{{ hostvars[groups['docker_swarm_primary_manager'][0]]['docker_swarm_init_result']['swarm_facts']['JoinTokens']['Manager'] }}"
   tasks:
     - name: Join managers to docker swarm
       community.docker.docker_swarm:
-        - state: join
-        - join_token: "{{ join_token }}"
-        - advertise_addr: "{{ primary_ip }}"
-        - remote_addrs: "{{ primary_manager_addr }}"
+        state: join
+        join_token: "{{ join_token }}"
+        advertise_addr: "{{ primary_ip }}"
+        remote_addrs: "{{ primary_manager_addr }}"
 
 - hosts: docker_swarm_workers
   tags: docker-swarm
   vars:
-    - primary_ip: 'vars["ansible_{{ primary_if }}"].ipv4.adderss'
-    - join_token: "{{ hostvars[groups['docker_swarm_primary_manager'][0]]['docker_swarm_init_result']['swarm_facts']['JoinTokens']['Worker'] }}"
+    primary_ip: 'vars["ansible_{{ primary_if }}"].ipv4.address'
+    join_token: "{{ hostvars[groups['docker_swarm_primary_manager'][0]]['docker_swarm_init_result']['swarm_facts']['JoinTokens']['Worker'] }}"
   tasks:
     - name: Join workers to docker swarm
       community.docker.docker_swarm:
-        - state: join
-        - join_token: join_token
-        - advertise_addr: "{{ primary_ip }}"
-        - remote_addrs: "{{ primary_manager_addr }} "
+        state: join
+        join_token: "{{ join_token }}"
+        advertise_addr: "{{ primary_ip }}"
+        remote_addrs: "{{ primary_manager_addr }}"
 
 - hosts: docker_swarm_primary_manager
   tasks:
     - name: Clear labels for docker nodes
-      community.docker.docker_nodes:
+      community.docker.docker_node:
         hostname: "{{ item }}"
         labels_state: replace
       loop: "{{ app_all_nodes }}"
 
     - name: Set app-idp label for docker nodes
-      community.docker.docker_nodes:
+      community.docker.docker_node:
         hostname: "{{ item }}"
         labels:
           app-idp: "true"
@@ -55,7 +55,7 @@
         labels:
           app-db-primary: "true"
         labels_state: merge
-        loop: "{{ app_db_primary_nodes }}"
+      loop: "{{ app_db_primary_nodes }}"
 
     - name: Set app-cache label for docker nodes
       community.docker.docker_node:
@@ -63,7 +63,7 @@
         labels:
           app-cache: "true"
         labels_state: merge
-        loop: "{{ app_cache_nodes }}"
+      loop: "{{ app_cache_nodes }}"
 
       # worker
     - name: Set app-worker label for docker nodes
@@ -72,28 +72,28 @@
         labels:
           app-worker: "true"
         labels_state: merge
-        loop: "{{ app_worker_nodes }}"
+      loop: "{{ app_worker_nodes }}"
 
     - name: Set app-api label for docker nodes
-      community.docker.docker_swarm:
+      community.docker.docker_node:
         hostname: "{{ item }}"
         labels:
           app-api: "true"
         labels_state: merge
-        loop: "{{ app_api_nodes }}"
+      loop: "{{ app_api_nodes }}"
 
     - name: Set app-ui label for docker nodes
-      community.docker.docker_swarm:
+      community.docker.docker_node:
         hostname: "{{ item }}"
         labels:
           app-ui: "true"
         labels_state: merge
-        loop: "{{ app_ui_nodes }}"
+      loop: "{{ app_ui_nodes }}"
 
     - name: Set app-utilities label for docker nodes
-      community.docker.docker_swarm:
+      community.docker.docker_node:
         hostname: "{{ item }}"
         labels:
           app-utilities: "true"
         labels_state: merge
-        loop: "{{ app_utilities_node }}"
+      loop: "{{ app_utilities_node }}"
