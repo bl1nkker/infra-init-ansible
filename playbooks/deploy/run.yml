@@ -1,0 +1,33 @@
+# it's a "play"
+- hosts: docker
+  vars_files:
+    - "vars/vars.yml"
+  pre_tasks:
+    - file:
+        path: "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}"
+        state: absent
+    - file:
+        path: "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}"
+        state: directory
+  roles:
+    - "{{ docker_stack_name }}"
+  post_tasks:
+    - template:
+        src: "{{ item }}"
+        dest: "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ (item | basename | splitext)[0] }}"
+      loop: '{{ lookup("fileglob", "roles/"+docker_stack_name+"/templates/*.j2", wantlist=True) }}'
+      # TODO: Resolve subdirectory problem
+      #   dest: "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ item | regex_replace('^roles/' ~ docker_stack_name ~ '/templates/', '') | regex_replace('\\.j2$', '') }}"
+      # loop: "{{ lookup('fileglob', 'roles/' + docker_stack_name + '/templates/**/*.j2', wantlist=True) }}"
+# TODO: Try to deploy traefik
+# - hosts: docker_swarm_primary_manager
+#   vars_files:
+#     - "vars/vars.yml"
+#   tasks:
+#     - name: "Deploy stack {{ docker_stack_name }}"
+#       docker_stack:
+#         state: present
+#         name: "{{ docker_stack_name }}"
+#         with_registry_auth: "yes"
+#         compose:
+#           - "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ docker_stack_name }}.yml"
