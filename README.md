@@ -20,4 +20,15 @@ Work in progress
 # TODO:
 
 - Investigate Traefik
+
+  - traefik must be able to create router with rules using `traefik_domain`:
+    ```yaml
+    {% if traefik_domain | length > 0 -%}
+    - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ traefik_domain }}`)"
+    {% else -%}
+    - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ app_domain }}`) && Headers(`X-DS-Service`, `traefik-dashboard`)"
+    {% endif -%}
+    ```
+  - try to deploy traefik modifying `playbooks/deploy/run.yml`
+
 - Investigate Docker NFS
