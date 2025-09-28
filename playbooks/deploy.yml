@@ -1,0 +1,10 @@
+- hosts: docker_swarm_primary_manager
+  tasks:
+    - name: Create apps network
+      docker_network:
+        name: apps
+        driver: overlay
+        ipam_config:
+          - subnet: 10.0.2.0/24
+
+- import_playbook: deploy/run.yml
