@@ -154,4 +154,4 @@ if [ "$_arg_become" = "on" ]; then
     become_placeholder="-K"
 fi
 
-ansible-playbook $become_placeholder -v $tags_placeholder $env_placeholder -e run_as_root=$run_as_root playbooks/$_arg_script.yml
+ansible-playbook $become_placeholder -v $tags_placeholder $env_placeholder -e infra_env=$INFRA_ENV -e run_as_root=$run_as_root playbooks/$_arg_script.yml
