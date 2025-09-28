@@ -1,0 +1,49 @@
+services:
+  traefik:
+    image: {{ docker_registry}}traefik:v3.5
+    command:
+      - "--configFile=/etc/traefik/traefik.static.toml"
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "config/traefik.static.toml:/etc/traefik/traefik.static.toml"
+      - "config/traefik.dynamic.toml:/etc/traefik/traefik.dynamic.toml"
+      - "certificates/certificates.toml:/configs/certificates.toml"
+      - "{{ plugins_dir }}/plugins:/plugins-local"
+      - "{{ certs_dir }}/fullchain.pem:/cetrificates/{{ app_domain }}.pem" 
+      - "{{ certs_dir }}/privKey.pem:/cetrificates/{{ app_domain }}.private"
+    networks:
+      apps:
+        aliases:
+          - traefik
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.app-traefik=true
+      labels:
+        - "traefik.http.routers.traefik-dashboard.rule=PathPrefix(`/`) && Header(`X-DMS-SERVICE`, `traefik-dashboard`)""
+        # - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ app_domain }}`) && Headers(`X-DS-Service`, `traefik-dashboard`)"
+        {% if infra_ipwhitelist | length > 0 -%}
+        - "traefik.http.routers.traefik-dashboard.middlewares=traefik-auth,traefik-ipwhitelist"
+        - "traefik.http.middlewares.traefik-ipwhitelist.ipwhitelist.sourcerange={{ infra_ipwhitelist }}"
+        {% else -%}
+        - "traefik.http.routers.traefik-dashboard.middlewares=traefik-auth"
+        {% endif -%}
+        - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$bHwn0PZx04WxbwCGsCRPGeKtscimvVUXckLA2CWgXM4h92xyP7mte" # @dm1n123
+        - "traefik.http.routers.traefik-dashboard.entrypoints=http, https"
+        - "traefik.http.routers.traefik-dashboard.service=api@internal"
+        - "traefik.http.routers.traefik-dashboard.priority=99"
+
+networks:
+    apps:
+        driver: overlay
+        external: true

@@ -1,0 +1,5 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for playbooks/scripts/roles/traefik
+certs_dir: "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/certs/{{ app_domain }}"
+plugins_dir: "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/plugins/{{ app_domain }}"

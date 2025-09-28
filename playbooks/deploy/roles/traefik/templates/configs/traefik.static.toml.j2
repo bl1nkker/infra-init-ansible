@@ -1,0 +1,24 @@
+[providers]
+    providersThrottleDuration = "10"
+    [providers.docker]
+        swarmMode = true
+        network = "apps"
+    [providers.file]
+        filename = "etc/traefik/traefik.dynamic.toml"
+        watch = true
+
+[entrypoints]
+    [entrypoints.http]
+        address = ":80"
+    [entrypoints.ssl]
+        address = ":443"
+    # TODO: add other entrypoints here
+
+[log]
+    level = "INFO"
+    format = "json"
+
+[api]
+    dashboard = true
+    # TODO: add auth
+    insecure = true

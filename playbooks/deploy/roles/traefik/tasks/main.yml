@@ -1,0 +1,22 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for playbooks/scripts/roles/traefik
+- name: "Create certificates directory"
+  file:
+    path: "{{ certs_dir }}"
+    state: directory
+
+- name: "Copy {{ infra_env }} certificate chain"
+  copy:
+    src: "{{ infra_env }}.cert.pem"
+    dest: "{{ certs_dir }}/fullchain.pem"
+
+- name: "Copy {{ infra_env }} private key"
+  copy:
+    src: "{{ infra_env }}.key.pem"
+    dest: "{{ certs_dir }}/privKey.pem"
+
+- name: "Copy plugins"
+  copy:
+    src: plugins
+    dest: "{{ plugins_dir }}"
