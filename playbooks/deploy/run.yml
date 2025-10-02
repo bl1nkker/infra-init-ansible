@@ -1,4 +1,4 @@
-# it's a "play"
+# # it's a "play"
 - hosts: docker
   vars_files:
     - "vars/vars.yml"
@@ -12,14 +12,33 @@
   roles:
     - "{{ docker_stack_name }}"
   post_tasks:
-    - template:
-        src: "{{ item }}"
-        dest: "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ (item | basename | splitext)[0] }}"
-      loop: '{{ lookup("fileglob", "roles/"+docker_stack_name+"/templates/*.j2", wantlist=True) }}'
-      # TODO: Resolve subdirectory problem
-      #   dest: "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ item | regex_replace('^roles/' ~ docker_stack_name ~ '/templates/', '') | regex_replace('\\.j2$', '') }}"
-      # loop: "{{ lookup('fileglob', 'roles/' + docker_stack_name + '/templates/**/*.j2', wantlist=True) }}"
-# TODO: Try to deploy traefik
+    - name: Find j2 files
+      find:
+        paths: "roles/{{ docker_stack_name }}/templates"
+        patterns: "^.*?\\.j2$"
+        use_regex: true
+        recurse: true
+      register: found_templates
+      delegate_to: localhost
+
+    - name: Ensure destination directories exist
+      file:
+        path: >-
+          /home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{
+            item.path
+            | regex_replace('^roles/traefik/templates/', '')
+            | dirname
+          }}
+        state: directory
+        mode: "0755"
+      loop: "{{ found_templates.files }}"
+
+    - name: Templating found files
+      template:
+        src: "{{ item.path }}"
+        dest: >-
+          /home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ item.path | regex_replace('^roles/traefik/templates/', '')| regex_replace('\.j2$', '') }}
+      loop: "{{ found_templates.files }}"
 # - hosts: docker_swarm_primary_manager
 #   vars_files:
 #     - "vars/vars.yml"
