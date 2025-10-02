@@ -14,9 +14,12 @@ services:
         mode: host
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "config/traefik.static.toml:/etc/traefik/traefik.static.toml"
-      - "config/traefik.dynamic.toml:/etc/traefik/traefik.dynamic.toml"
-      - "certificates/certificates.toml:/configs/certificates.toml"
+      # static config
+      - "./config/traefik.static.toml:/etc/traefik/traefik.static.toml"
+      # dynamic config
+      - "./config/traefik.dynamic.toml:/etc/traefik/traefik.dynamic.toml"
+      # certificates config
+      - "./certificates/certificates.toml:/configs/certificates.toml"
       - "{{ plugins_dir }}/plugins:/plugins-local"
       - "{{ certs_dir }}/fullchain.pem:/cetrificates/{{ app_domain }}.pem" 
       - "{{ certs_dir }}/privKey.pem:/cetrificates/{{ app_domain }}.private"
@@ -28,10 +31,9 @@ services:
       mode: global
       placement:
         constraints:
-          - node.labels.app-traefik=true
+          - node.labels.app-traefik == true
       labels:
-        - "traefik.http.routers.traefik-dashboard.rule=PathPrefix(`/`) && Header(`X-DMS-SERVICE`, `traefik-dashboard`)""
-        # - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ app_domain }}`) && Headers(`X-DS-Service`, `traefik-dashboard`)"
+        - "traefik.http.routers.traefik-dashboard.rule=PathPrefix(`/`) && Header(`X-DMS-SERVICE`, `traefik-dashboard`)"
         {% if infra_ipwhitelist | length > 0 -%}
         - "traefik.http.routers.traefik-dashboard.middlewares=traefik-auth,traefik-ipwhitelist"
         - "traefik.http.middlewares.traefik-ipwhitelist.ipwhitelist.sourcerange={{ infra_ipwhitelist }}"

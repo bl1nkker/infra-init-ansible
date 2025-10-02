@@ -26,7 +26,7 @@
         path: >-
           /home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{
             item.path
-            | regex_replace('^roles/traefik/templates/', '')
+            | regex_replace('^.*templates/', '')
             | dirname
           }}
         state: directory
@@ -37,16 +37,17 @@
       template:
         src: "{{ item.path }}"
         dest: >-
-          /home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ item.path | regex_replace('^roles/traefik/templates/', '')| regex_replace('\.j2$', '') }}
+          /home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ item.path | regex_replace('^.*templates/', '') | regex_replace('\.j2$', '') }}
       loop: "{{ found_templates.files }}"
-# - hosts: docker_swarm_primary_manager
-#   vars_files:
-#     - "vars/vars.yml"
-#   tasks:
-#     - name: "Deploy stack {{ docker_stack_name }}"
-#       docker_stack:
-#         state: present
-#         name: "{{ docker_stack_name }}"
-#         with_registry_auth: "yes"
-#         compose:
-#           - "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ docker_stack_name }}.yml"
+
+- hosts: docker_swarm_primary_manager
+  vars_files:
+    - "vars/vars.yml"
+  tasks:
+    - name: "Deploy stack {{ docker_stack_name }}"
+      docker_stack:
+        state: present
+        name: "{{ docker_stack_name }}"
+        with_registry_auth: "yes"
+        compose:
+          - "/home/{{ remote_user }}/.infra/stacks/{{ docker_stack_name }}/{{ docker_stack_name }}.yml"
