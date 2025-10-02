@@ -204,3 +204,39 @@
     proto: udp
     src: "{{ firewall_subnet }}"
   when: False
+
+- name: Permitting nfs port 111/tcp
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 111
+    proto: tcp
+    src: "{{ firewall_subnet }}"
+  when: False
+
+- name: Permitting nfs port 111/udp
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 111
+    proto: udp
+    src: "{{ firewall_subnet }}"
+  when: False
+
+- name: Permitting nfs port 2049/tcp
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 2049
+    proto: tcp
+    src: "{{ firewall_subnet }}"
+  when: False
+
+- name: Permitting nfs port 2049/udp
+  become: "{{ run_as_root }}"
+  community.general.ufw:
+    rule: allow
+    port: 2049
+    proto: udp
+    src: "{{ firewall_subnet }}"
+  when: False

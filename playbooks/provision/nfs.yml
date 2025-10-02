@@ -1,0 +1,20 @@
+- hosts: nfs_server
+  tags: create-nfs
+  become: True
+  pre_tasks:
+    - name: "Create {{ nfs_path }} directory"
+      file:
+        path: "{{ nfs_path }}"
+        mode: 0777
+        state: directory
+  roles:
+    - role: geerlingguy.nfs
+      vars:
+        nfs_exports:
+          - "{{ nfs_path}} *(rw,sync,no_subtree_check)"
+
+- hosts: nfs_clients
+  tags: create-nfs
+  become: True
+  roles:
+    - role: geerlingguy.nfs
