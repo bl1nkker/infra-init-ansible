@@ -1,7 +1,7 @@
 [providers]
     providersThrottleDuration = "10"
-    [providers.docker]
-        swarmMode = true
+    [providers.swarm]
+        exposedByDefault = false
         network = "apps"
     [providers.file]
         filename = "etc/traefik/traefik.dynamic.toml"
@@ -15,7 +15,7 @@
     # TODO: add other entrypoints here
 
 [log]
-    level = "INFO"
+    level = "DEBUG"
     format = "json"
 
 [api]
