@@ -97,3 +97,11 @@
           app-utilities: "true"
         labels_state: merge
       loop: "{{ app_utilities_node }}"
+
+    - name: Set app-traefik label for docker nodes
+      community.docker.docker_node:
+        hostname: "{{ item }}"
+        labels:
+          app-traefik: "true"
+        labels_state: merge
+      loop: "{{ app_traefik_node }}"
