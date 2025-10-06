@@ -1,3 +1,6 @@
 _local.yml
 .passkey
 .compose
+vars.yml
+*.cert.pem
+*.key.pem
