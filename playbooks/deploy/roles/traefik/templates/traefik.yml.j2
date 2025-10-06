@@ -19,10 +19,10 @@ services:
       # dynamic config
       - "./config/traefik.dynamic.toml:/etc/traefik/traefik.dynamic.toml"
       # certificates config
-      - "./certificates/certificates.toml:/configs/certificates.toml"
-      - "{{ plugins_dir }}/plugins:/plugins-local"
-      - "{{ certs_dir }}/fullchain.pem:/cetrificates/{{ app_domain }}.pem" 
-      - "{{ certs_dir }}/privKey.pem:/cetrificates/{{ app_domain }}.private"
+      # - "./certificates/certificates.toml:/configs/certificates.toml"
+      # - "{{ plugins_dir }}/plugins:/plugins-local"
+      # - "{{ certs_dir }}/fullchain.pem:/certificates/{{ app_domain }}.pem" 
+      # - "{{ certs_dir }}/privKey.pem:/certificates/{{ app_domain }}.private"
     networks:
       apps:
         aliases:
@@ -33,7 +33,8 @@ services:
         constraints:
           - node.labels.app-traefik == true
       labels:
-        - "traefik.http.routers.traefik-dashboard.rule=PathPrefix(`/`) && Header(`X-DMS-SERVICE`, `traefik-dashboard`)"
+        - "traefik.enable=true"
+        - "traefik.http.routers.traefik-dashboard.rule=PathPrefix(`/`) && Header(`X-INFRA-SERVICE`, `traefik-dashboard`)"
         {% if infra_ipwhitelist | length > 0 -%}
         - "traefik.http.routers.traefik-dashboard.middlewares=traefik-auth,traefik-ipwhitelist"
         - "traefik.http.middlewares.traefik-ipwhitelist.ipwhitelist.sourcerange={{ infra_ipwhitelist }}"
@@ -41,9 +42,10 @@ services:
         - "traefik.http.routers.traefik-dashboard.middlewares=traefik-auth"
         {% endif -%}
         - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$bHwn0PZx04WxbwCGsCRPGeKtscimvVUXckLA2CWgXM4h92xyP7mte" # @dm1n123
-        - "traefik.http.routers.traefik-dashboard.entrypoints=http, https"
+        - "traefik.http.routers.traefik-dashboard.entrypoints=http,https"
         - "traefik.http.routers.traefik-dashboard.service=api@internal"
         - "traefik.http.routers.traefik-dashboard.priority=99"
+        - "traefik.http.services.traefik.loadbalancer.server.port=8080"
 
 networks:
     apps:

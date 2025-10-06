@@ -3,6 +3,7 @@
     [providers.swarm]
         exposedByDefault = false
         network = "apps"
+        watch = true
     [providers.file]
         filename = "etc/traefik/traefik.dynamic.toml"
         watch = true
@@ -10,7 +11,7 @@
 [entrypoints]
     [entrypoints.http]
         address = ":80"
-    [entrypoints.ssl]
+    [entrypoints.https]
         address = ":443"
     # TODO: add other entrypoints here
 
@@ -20,5 +21,4 @@
 
 [api]
     dashboard = true
-    # TODO: add auth
-    insecure = true
+    insecure = false
