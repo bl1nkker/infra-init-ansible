@@ -1,0 +1,62 @@
+services:
+  n8n:
+    image: {{ docker_registry }}docker.n8n.io/n8nio/n8n
+    environment:
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - N8N_RUNNERS_ENABLED=true
+      - NODE_ENV=production
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      - TZ=${GENERIC_TIMEZONE}
+      - N8N_USER_FOLDER=/data/user-data
+      {% if n8n_domain | length > 0 -%}
+      - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/
+      {% else -%}
+      - N8N_SECURE_COOKIE=false
+      - N8N_PATH=/n8n-service/
+      - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/n8n-service/
+      {% endif %}
+
+    volumes:
+      - type: volume
+        source: app-data
+        target: /data/user-data
+        volume:
+          nocopy: true
+    networks:
+      apps:
+        aliases:
+          - n8n
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.labels.app-ui == true
+      labels:
+        {% if n8n_domain | length > 0 -%}
+        - traefik.http.routers.n8n.rule=Host(`{{ n8n_domain }}`)
+        - traefik.http.routers.n8n.tls=true
+        - traefik.http.routers.n8n.tls.certresolver=letsencrypt
+        {% else -%}
+        - traefik.http.routers.n8n.rule=PathPrefix(`/n8n-service`)
+        - traefik.http.routers.n8n.middlewares=n8n-middleware
+        - traefik.http.middlewares.n8n-middleware.stripprefix.prefixes=/n8n-service
+        {% endif -%}
+
+        - traefik.enable=true
+        - traefik.http.routers.n8n.entrypoints=http,https
+        - traefik.http.services.n8n_service.loadbalancer.server.port=5678
+
+volumes:
+  app-data:
+    driver_opts:
+      type: nfs
+      o: 'addr={{ nfs_source }},rw,nfsvers=4,async'
+      device: ":{{ nfs_path }}"
+
+networks:
+  apps:
+      driver: overlay
+      external: true
