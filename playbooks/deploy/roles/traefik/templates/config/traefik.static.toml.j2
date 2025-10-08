@@ -13,6 +13,7 @@
         address = ":80"
     [entrypoints.https]
         address = ":443"
+        [entrypoints.websecure.http.tls]
     # TODO: add other entrypoints here
 
 [log]
@@ -22,3 +23,10 @@
 [api]
     dashboard = true
     insecure = false
+
+[certificatesResolvers.letsencrypt.acme]
+	email = "nurovich14@gmail.com"
+	storage = "acme.json"
+
+	[certificatesResolvers.letsencrypt.acme.httpChallenge]
+		entryPoint = "http"

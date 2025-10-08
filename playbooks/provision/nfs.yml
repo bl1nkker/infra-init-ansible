@@ -11,10 +11,11 @@
     - role: geerlingguy.nfs
       vars:
         nfs_exports:
-          - "{{ nfs_path}} *(rw,sync,no_subtree_check)"
+          - "{{ nfs_path }} *(rw,sync,no_subtree_check)"
 
 - hosts: nfs_clients
   tags: create-nfs
   become: True
   roles:
     - role: geerlingguy.nfs
+# also restart the nfs service on nfsserver
