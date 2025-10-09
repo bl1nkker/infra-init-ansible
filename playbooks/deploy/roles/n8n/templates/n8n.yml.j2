@@ -3,7 +3,6 @@ services:
     image: {{ docker_registry }}docker.n8n.io/n8nio/n8n
     environment:
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
-      - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
       - N8N_RUNNERS_ENABLED=true
@@ -12,11 +11,13 @@ services:
       - TZ=${GENERIC_TIMEZONE}
       - N8N_USER_FOLDER=/data/user-data
       {% if n8n_domain | length > 0 -%}
-      - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/
+      - WEBHOOK_URL=https://{{ n8n_domain }}/
+      - N8N_HOST={{ n8n_domain }}
       {% else -%}
       - N8N_SECURE_COOKIE=false
       - N8N_PATH=/n8n-service/
       - WEBHOOK_URL=https://${SUBDOMAIN}.${DOMAIN_NAME}/n8n-service/
+      - N8N_HOST=${SUBDOMAIN}.${DOMAIN_NAME}
       {% endif %}
 
     volumes:
