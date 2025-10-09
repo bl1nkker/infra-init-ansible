@@ -1,0 +1,28 @@
+services:
+  service:
+    image: "{{ docker_registry }}postgres:14.19"
+    environment:
+      PGDATA: /pgdata
+      POSTGRES_PASSWORD: {{ db_password }}
+    networks:
+      apps:
+        aliases:
+          - db
+    volumes:
+      - db-data:/pgdata
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app-db-primary == true
+      labels:
+        - "traefik.enable=false"
+
+networks:
+  apps:
+    driver: overlay
+    external: true
+
+volumes:
+  db-data:

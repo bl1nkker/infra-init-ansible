@@ -1,0 +1,40 @@
+services:
+  service:
+    image: {{ docker_registry }}dpage/pgadmin4:9.7.0
+    networks:
+      apps:
+        aliases:
+          - pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=bl1nkker@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD={{ pgadmin_password }}
+      - PGADMIN_LISTEN_PORT=5050
+      - PGADMIN_DISABLE_POSTFIX=true
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app-db-primary == true
+      labels:
+        {% if pgadmin_domain | length > 0 -%}
+        - traefik.http.routers.pgadmin-router.rule=Host(`{{ pgadmin_domain }}`)
+        - traefik.http.routers.pgadmin-router.tls=true
+        - traefik.http.routers.pgadmin-router.tls.certresolver=letsencrypt
+        {% else -%}
+        - traefik.http.routers.pgadmin-router.rule=PathPrefix(`/`) && Header(`X-INFRA-SERVICE`, `pgadmin-dashboard`)
+        {% endif -%}
+
+        - traefik.enable=true
+        - traefik.http.routers.pgadmin-router.entrypoints=http,https
+        - traefik.http.services.pgadmin-service.loadbalancer.server.port=5050
+
+networks:
+    apps:
+        driver: overlay
+        external: true
+
+volumes:
+  pgadmin-data:
