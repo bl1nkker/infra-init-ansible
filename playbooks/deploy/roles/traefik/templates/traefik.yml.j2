@@ -29,25 +29,25 @@ services:
           - node.labels.app-traefik == true
       labels:
         {% if traefik_domain | length > 0 -%}
-        - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ traefik_domain }}`)"
+        - traefik.http.routers.traefik-dashboard.rule=Host(`{{ traefik_domain }}`)
         - traefik.http.routers.traefik-dashboard.tls=true
         - traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt
         {% else -%}
-        - "traefik.http.routers.traefik-dashboard.rule=PathPrefix(`/`) && Header(`X-INFRA-SERVICE`, `traefik-dashboard`)"
+        - traefik.http.routers.traefik-dashboard.rule=PathPrefix(`/`) && Header(`X-INFRA-SERVICE`, `traefik-dashboard`)
         {% endif %}
 
         {% if infra_ipwhitelist | length > 0 -%}
-        - "traefik.http.routers.traefik-dashboard.middlewares=traefik-auth,traefik-ipwhitelist"
-        - "traefik.http.middlewares.traefik-ipwhitelist.ipwhitelist.sourcerange={{ infra_ipwhitelist }}"
+        - traefik.http.routers.traefik-dashboard.middlewares=traefik-auth,traefik-ipwhitelist
+        - traefik.http.middlewares.traefik-ipwhitelist.ipwhitelist.sourcerange={{ infra_ipwhitelist }}
         {% else -%}
-        - "traefik.http.routers.traefik-dashboard.middlewares=traefik-auth"
+        - traefik.http.routers.traefik-dashboard.middlewares=traefik-auth
         {% endif -%}
-        - "traefik.enable=true"
-        - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$bHwn0PZx04WxbwCGsCRPGeKtscimvVUXckLA2CWgXM4h92xyP7mte" # @dm1n123
-        - "traefik.http.routers.traefik-dashboard.entrypoints=http,https"
-        - "traefik.http.routers.traefik-dashboard.service=api@internal"
-        - "traefik.http.routers.traefik-dashboard.priority=99"
-        - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+        - traefik.enable=true
+        - traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$2y$$05$$bHwn0PZx04WxbwCGsCRPGeKtscimvVUXckLA2CWgXM4h92xyP7mte # @dm1n123
+        - traefik.http.routers.traefik-dashboard.entrypoints=http,https
+        - traefik.http.routers.traefik-dashboard.service=api@internal
+        - traefik.http.routers.traefik-dashboard.priority=99
+        - traefik.http.services.traefik.loadbalancer.server.port=8080
 
 networks:
     apps:
