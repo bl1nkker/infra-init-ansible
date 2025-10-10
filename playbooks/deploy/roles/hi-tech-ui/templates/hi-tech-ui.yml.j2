@@ -1,0 +1,36 @@
+services:
+  service:
+    image: blinkker/hi-tech:dev
+    environment:
+      - NEXT_PUBLIC_API_URL=https://{{ hi_tech_domain }}/backend/api
+      - NEXT_PUBLIC_MEDIA_URL=https://{{ hi_tech_domain }}/backend
+      - NEXT_PUBLIC_BACKEND_HOST=https://{{ hi_tech_domain }}/backend
+      - NEXT_PUBLIC_BACKEND_PORT=443
+      - STRAPI_API_TOKEN={{ strapi_api_token }}
+    networks:
+      apps:
+        aliases:
+          - hi-tech-ui
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.labels.app-ui == true
+      labels:
+        {% if hi_tech_domain | length > 0 -%}
+        - traefik.http.routers.hi-tech-router.rule=Host(`{{ hi_tech_domain }}`)
+        - traefik.http.routers.hi-tech-router.tls=true
+        - traefik.http.routers.hi-tech-router.tls.certresolver=letsencrypt
+        {% else -%}
+        - traefik.http.routers.hi-tech-router.rule=PathPrefix(`/`) && Header(`X-INFRA-SERVICE`, `hi-tech-ui`)
+        {% endif -%}
+
+        - traefik.enable=true
+        - traefik.http.routers.hi-tech-router.entrypoints=http,https
+        - traefik.http.services.hi-tech-service.loadbalancer.server.port=3000
+
+
+networks:
+  apps:
+    driver: overlay
+    external: true
