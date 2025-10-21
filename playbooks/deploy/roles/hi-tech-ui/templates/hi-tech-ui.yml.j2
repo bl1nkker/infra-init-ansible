@@ -3,10 +3,10 @@ services:
     image: blinkker/hi-tech:dev
     environment:
       - NEXT_PUBLIC_API_URL=https://{{ hi_tech_domain }}/backend/api
-      - NEXT_PUBLIC_MEDIA_URL=https://{{ hi_tech_domain }}/backend
-      - NEXT_PUBLIC_BACKEND_HOST=https://{{ hi_tech_domain }}/backend
+      - NEXT_PUBLIC_BACKEND_HOST={{ hi_tech_domain }}/backend
       - NEXT_PUBLIC_BACKEND_PORT=443
       - STRAPI_API_TOKEN={{ strapi_api_token }}
+      - NODE_ENV=production
     networks:
       apps:
         aliases:
