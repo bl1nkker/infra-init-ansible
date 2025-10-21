@@ -1,0 +1,34 @@
+version: '3.8'
+
+networks:
+  notification:
+
+services:
+  service:
+    image: "{{ docker_registry }}containrrr/shepherd"
+    environment:
+      SLEEP_TIME: "3m"
+      TZ: "Asia/Almaty"
+      APPRISE_SIDECAR_URL: notify:5000
+      VERBOSE: "true"
+      FILTER_SERVICES: "label=shepherd.autodeploy=true"
+      IMAGE_AUTOCLEAN_LIMIT: "3"
+      ROLLBACK_ON_FAILURE: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/docker:/etc/docker:ro
+    networks:
+      - notification
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  notify:
+      image: "{{ docker_registry }}mazzolino/apprise-microservice:latest"
+      environment:
+        NOTIFICATION_URLS: mailto:///{{ email_notification_url }}
+      networks:
+        - notification
+      deploy:
+        labels:
+          - "io.portainer.accesscontrol.public"
