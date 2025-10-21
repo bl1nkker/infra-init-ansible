@@ -1,0 +1,8 @@
+hi_tech_domain: app_domain.com
+db_password: same_password as for /roles/db
+api_token_salt: api_token_salt
+admin_jwt_secret: admin_jwt_secret
+transfer_token_salt: transfer_token_salt
+encryption_key: encryption_key
+jwt_secret: jwt_secret
+app_keys: app_keys

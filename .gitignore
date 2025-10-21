@@ -4,3 +4,4 @@ _local.yml
 vars.yml
 *.cert.pem
 *.key.pem
+/playbooks/deploy/roles/*/vars/main.yml

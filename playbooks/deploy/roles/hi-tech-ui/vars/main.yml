@@ -1,5 +1,0 @@
-#SPDX-License-Identifier: MIT-0
----
-# vars file for playbooks/deploy/roles/hi-tech-ui
-hi_tech_domain: "hitech-narxoz.duckdns.org"
-strapi_api_token: 4edfd6b58224f21759ba8232f36d8a13d2482005b10b3d6bfdd355becf4c7cbfde0b4fbfadd4fa53da80463e7d16481c2a6c4566221ed37319b77cd00b221872e50ac54edc025d2f619520ead6e161bd4b605fa0f5840cd7f6e78a2facf8a55d7e55227b2084383523c0ba3dc964e7606e8744ca41a8deafd321000a7f323e35
