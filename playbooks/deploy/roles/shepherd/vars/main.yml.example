@@ -1,2 +1,3 @@
 # refer to https://github.com/caronc/apprise/wiki/Notify_email
 email_notification_url: user:pass@gmail.com
+docker_registry_config_path: /home/{{ remote_user }}/.docker/config.json
