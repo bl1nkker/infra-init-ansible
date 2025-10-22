@@ -1,0 +1,35 @@
+services:
+  service:
+    image: {{ docker_registry }}mongo-express:1.0.2
+    networks:
+      apps:
+        aliases:
+          - mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://mongoroot:{{ db_password }}@mongodb:27017/
+      - ME_CONFIG_BASICAUTH_ENABLED=true
+      - ME_CONFIG_BASICAUTH_USERNAME=mongoroot
+      - ME_CONFIG_BASICAUTH_PASSWORD={{ db_password }}
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app-db-primary == true
+      labels:
+        {% if services_domain | length > 0 -%}
+        - traefik.http.routers.mongo-express-router.rule=Host(`{{ services_domain }}`) && Header(`{{ service_header }}`, `mongo-express-dashboard`)
+        - traefik.http.routers.mongo-express-router.tls=true
+        - traefik.http.routers.mongo-express-router.tls.certresolver=letsencrypt
+        {% else -%}
+        - traefik.http.routers.mongo-express-router.rule=PathPrefix(`/`) && Header(`{{ service_header }}`, `mongo-express-dashboard`)
+        {% endif -%}
+        - traefik.enable=true
+        - traefik.http.routers.mongo-express-router.entrypoints=http,https
+        - traefik.http.services.mongo-express-service.loadbalancer.server.port=8081
+  
+
+networks:
+  apps:
+    driver: overlay
+    external: true

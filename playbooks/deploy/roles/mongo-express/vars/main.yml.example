@@ -1,0 +1,4 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for playbooks/deploy/roles/mongo-express
+db_password: db_pass
