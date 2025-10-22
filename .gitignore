@@ -5,3 +5,4 @@ vars.yml
 *.cert.pem
 *.key.pem
 /playbooks/deploy/roles/*/vars/main.yml
+/playbooks/deploy/deploy/vars/main.yml
