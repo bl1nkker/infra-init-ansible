@@ -28,8 +28,8 @@ services:
         constraints:
           - node.labels.app-traefik == true
       labels:
-        {% if traefik_domain | length > 0 -%}
-        - traefik.http.routers.traefik-dashboard.rule=Host(`{{ traefik_domain }}`)
+        {% if services_domain | length > 0 -%}
+        - traefik.http.routers.traefik-dashboard.rule=Host(`{{ services_domain }}`) && Header(`X-INFRA-SERVICE`, `traefik-dashboard`)
         - traefik.http.routers.traefik-dashboard.tls=true
         - traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt
         {% else -%}

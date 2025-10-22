@@ -19,8 +19,8 @@ services:
         constraints:
           - node.labels.app-db-primary == true
       labels:
-        {% if pgadmin_domain | length > 0 -%}
-        - traefik.http.routers.pgadmin-router.rule=Host(`{{ pgadmin_domain }}`)
+        {% if services_domain | length > 0 -%}
+        - traefik.http.routers.pgadmin-router.rule=Host(`{{ services_domain }}`) && Header(`{{ service_header }}`, `pgadmin-dashboard`)
         - traefik.http.routers.pgadmin-router.tls=true
         - traefik.http.routers.pgadmin-router.tls.certresolver=letsencrypt
         {% else -%}

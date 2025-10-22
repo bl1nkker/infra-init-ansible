@@ -1,3 +1,5 @@
 app_domain: bl1nkker.infra.com
 infra_ipwhitelist: ""
 docker_registry: "{{ docker_ce_local.registry + '/' if docker_ce_local is defined else '' }}"
+services_domain: services-narxoz.duckdns.org
+service_header: X-INFRA-SERVICE
