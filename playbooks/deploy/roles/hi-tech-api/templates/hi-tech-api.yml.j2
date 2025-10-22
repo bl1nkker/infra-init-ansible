@@ -8,7 +8,7 @@ services:
       - DATABASE_NAME=hi_tech
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD={{ db_password }}
-      - PUBLIC_URL=https://{{ hi_tech_domain }}/backend
+      - PUBLIC_URL=https://{{ hi_tech_domain }}
       - DATABASE_SSL=false
       - DATABASE_SSL_SELF=false
       - HOST=0.0.0.0
@@ -37,7 +37,7 @@ services:
           - node.labels.app-ui == true
       labels:
         {% if hi_tech_domain | length > 0 -%}
-        - traefik.http.routers.hi-tech-api-router.rule=Host(`{{ hi_tech_domain }}`) && PathPrefix(`/backend`)
+        - traefik.http.routers.hi-tech-api-router.rule=Host(`{{ hi_tech_domain }}`)
         - traefik.http.routers.hi-tech-api-router.tls=true
         - traefik.http.routers.hi-tech-api-router.priority=99
         - traefik.http.routers.hi-tech-api-router.tls.certresolver=letsencrypt
@@ -47,8 +47,8 @@ services:
 
         - traefik.enable=true
         - traefik.http.routers.hi-tech-api-router.entrypoints=http,https
-        - traefik.http.routers.hi-tech-api-router.middlewares=hi-tech-api-middleware
-        - traefik.http.middlewares.hi-tech-api-middleware.stripprefix.prefixes=/backend
+        # - traefik.http.routers.hi-tech-api-router.middlewares=hi-tech-api-middleware
+        # - traefik.http.middlewares.hi-tech-api-middleware.stripprefix.prefixes=/backend
         - traefik.http.services.hi-tech-api-service.loadbalancer.server.port=1337
   
 volumes:

@@ -2,8 +2,8 @@ services:
   service:
     image: blinkker/hi-tech:dev
     environment:
-      - NEXT_PUBLIC_API_URL=https://{{ hi_tech_domain }}/backend/api
-      - NEXT_PUBLIC_BACKEND_HOST={{ hi_tech_domain }}/backend
+      - NEXT_PUBLIC_API_URL=https://{{ hi_tech_backend_domain }}/api
+      - NEXT_PUBLIC_BACKEND_HOST={{ hi_tech_backend_domain }}/
       - NEXT_PUBLIC_BACKEND_PORT=443
       - STRAPI_API_TOKEN={{ strapi_api_token }}
       - NODE_ENV=production
@@ -28,6 +28,7 @@ services:
         - traefik.enable=true
         - traefik.http.routers.hi-tech-router.entrypoints=http,https
         - traefik.http.services.hi-tech-service.loadbalancer.server.port=3000
+        - shepherd.autodeploy=true
 
 
 networks:
