@@ -1,0 +1,28 @@
+services:
+  vectordb:
+    image: {{ docker_registry }}ankane/pgvector:latest
+    environment:
+      PGDATA: /pgdata
+      POSTGRES_PASSWORD: {{ db_password }}
+    networks:
+      apps:
+        aliases:
+          - vectordb
+    volumes:
+      - vectordb-data:/pgdata
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app-db-primary == true
+      labels:
+        - "traefik.enable=false"
+
+networks:
+  apps:
+    driver: overlay
+    external: true
+
+volumes:
+  vectordb-data:
