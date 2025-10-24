@@ -1,0 +1,131 @@
+services:
+
+  librechat:
+    image: blinkker/librechat:0.0.26-amd
+    command: npm run backend
+    environment:
+      - MONGO_URI=mongodb://mongoroot:{{ mongodb_password }}@mongodb:27017/LibreChat?authSource=admin
+      - MEILI_HOST=http://meilisearch:7700
+      - RAG_PORT=8000
+      - RAG_API_URL=http://rag_api:8000
+      - OPENAI_API_KEY={{ openai_api_key }}
+    networks:
+      apps:
+        aliases:
+          - librechat
+    env_file:
+      - ./config/env
+    volumes:
+      - ./config/librechat.yaml:/app/librechat.yaml:ro
+      - type: volume
+        source: images-data
+        target: /app/client/public/images
+        volume:
+          nocopy: true
+      - type: volume
+        source: uploads-data
+        target: /app/uploads
+        volume:
+          nocopy: true
+      - type: volume
+        source: logs-data
+        target: /app/api/logs
+        volume:
+          nocopy: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app-ui == true
+      labels:
+        {% if librechat_domain | length > 0 -%}
+        - traefik.http.routers.librechat-router.rule=Host(`{{ librechat_domain }}`)
+        - traefik.http.routers.librechat-router.tls=true
+        - traefik.http.routers.librechat-router.tls.certresolver=letsencrypt
+        {% else -%}
+        - traefik.http.routers.librechat-router.rule=PathPrefix(`/librechat`)
+        - traefik.http.routers.librechat-router.middlewares=librechat-middleware
+        - traefik.http.middlewares.librechat-middleware.stripprefix.prefixes=/librechat
+        {% endif -%}
+
+        - traefik.enable=true
+        - traefik.http.routers.librechat-router.entrypoints=http,https
+        - traefik.http.services.librechat-service.loadbalancer.server.port=3080
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.12.3
+    environment:
+      - MEILI_HOST=http://meilisearch:7700
+      - MEILI_NO_ANALYTICS=true
+      - MEILI_MASTER_KEY={{ meili_master_key }}
+    networks:
+      apps:
+        aliases:
+          - meilisearch
+    volumes:
+      - type: volume
+        source: meili-data
+        target: /meili_data
+        volume:
+          nocopy: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app-utilities == true
+      labels:
+        - traefik.enable=false
+
+  rag_api:
+    image: ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest
+    environment:
+      - DB_HOST=vectordb
+      - POSTGRES_DB=ragdb
+      - POSTGRES_USER=raguser
+      - POSTGRES_PASSWORD={{ ragdb_password }}
+      - RAG_PORT=8000
+      - OPENAI_API_KEY={{ openai_api_key }}
+      - RAG_OPENAI_API_KEY={{ openai_api_key }}
+    env_file:
+      - ./config/env
+    networks:
+      apps:
+        aliases:
+          - rag_api
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app-utilities == true
+      labels:
+        - traefik.enable=false
+
+networks:
+  apps:
+    driver: overlay
+    external: true
+
+volumes:
+  images-data:
+    driver_opts:
+      type: nfs
+      o: 'addr={{ nfs_source }},rw,nfsvers=4,async'
+      device: ":{{ nfs_path }}"
+  uploads-data:
+    driver_opts:
+      type: nfs
+      o: 'addr={{ nfs_source }},rw,nfsvers=4,async'
+      device: ":{{ nfs_path }}"
+  logs-data:
+    driver_opts:
+      type: nfs
+      o: 'addr={{ nfs_source }},rw,nfsvers=4,async'
+      device: ":{{ nfs_path }}"
+  meili-data:
+    driver_opts:
+      type: nfs
+      o: 'addr={{ nfs_source }},rw,nfsvers=4,async'
+      device: ":{{ nfs_path }}"

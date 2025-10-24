@@ -6,3 +6,6 @@ vars.yml
 *.key.pem
 /playbooks/deploy/roles/*/vars/main.yml
 /playbooks/deploy/deploy/vars/main.yml
+
+# Librechat
+/playbooks/deploy/roles/librechat/templates/config/*.j2
