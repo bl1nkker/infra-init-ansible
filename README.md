@@ -19,16 +19,10 @@ Work in progress
 
 # TODO:
 
-- Investigate Traefik
+- Write ansible prerequisites (ansible must be installed, ansible vault var, vars.yml, etc...)
 
-  - traefik must be able to create router with rules using `traefik_domain`:
-    ```yaml
-    {% if traefik_domain | length > 0 -%}
-    - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ traefik_domain }}`)"
-    {% else -%}
-    - "traefik.http.routers.traefik-dashboard.rule=Host(`{{ app_domain }}`) && Headers(`X-DS-Service`, `traefik-dashboard`)"
-    {% endif -%}
-    ```
-  - try to deploy traefik modifying `playbooks/deploy/run.yml`
+# Known Security Issues
 
-- Investigate Docker NFS
+- Redis without auth
+- HI Tech: project is invalid without domain
+- Librechat: project is invalid without domain
