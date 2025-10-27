@@ -1,0 +1,37 @@
+services:
+  service:
+    image: {{ docker_registry }}blinkker/librechat-analytics:0.0.26-amd
+    command: python app.py
+    environment:
+      - MONGO_URI=mongodb://mongoroot:{{ mongodb_password }}@mongodb:27017/
+      - PORT=5000
+    healthcheck:
+      disable: true
+    networks:
+      apps:
+        aliases:
+          - librechat-analytics
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.app-utilities == true
+      labels:
+        {% if services_domain | length > 0 -%}
+        - traefik.http.routers.librechat-analytics-router.rule=Host(`{{ services_domain }}`) && Header(`{{ service_header }}`, `librechat-analytics`)
+        - traefik.http.routers.librechat-analytics-router.tls=true
+        - traefik.http.routers.librechat-analytics-router.tls.certresolver=letsencrypt
+        {% else -%}
+        - traefik.http.routers.librechat-analytics-router.rule=PathPrefix(`/`) && Header(`{{ service_header }}`, `librechat-analytics`)
+        {% endif -%}
+        - traefik.enable=true
+        - traefik.http.routers.librechat-analytics-router.entrypoints=http,https
+        - traefik.http.routers.librechat-analytics-router.middlewares=librechat-analytics-auth
+        - traefik.http.middlewares.librechat-analytics-auth.basicauth.users=admin:{{ auth_user_pass }}
+        - traefik.http.services.librechat-analytics-service.loadbalancer.server.port=5000
+
+networks:
+  apps:
+    external: true
+    driver: overlay

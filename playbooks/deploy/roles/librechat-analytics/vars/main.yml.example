@@ -1,0 +1,5 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for playbooks/deploy/roles/librechat-analytics
+mongodb_password: some_pass
+auth_user_pass: bcrypt_pass_with_double_$$
