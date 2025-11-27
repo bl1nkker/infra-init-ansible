@@ -1,2 +1,4 @@
-hi_tech_domain: hi_tech_domain.org
+hi_tech_domain: hi_tech_domain
+hi_tech_backend_domain: hi_tech_backend_domain
 strapi_api_token: strapi_api_token
+next_public_strapi_admin_token: next_public_strapi_admin_token
