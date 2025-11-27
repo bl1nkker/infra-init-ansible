@@ -5,7 +5,9 @@ services:
       - NEXT_PUBLIC_API_URL=https://{{ hi_tech_backend_domain }}/api
       - NEXT_PUBLIC_BACKEND_HOST={{ hi_tech_backend_domain }}
       - NEXT_PUBLIC_BACKEND_PORT=443
+      - NEXT_PUBLIC_BACKEND_URL=https://{{ hi_tech_backend_domain }}
       - STRAPI_API_TOKEN={{ strapi_api_token }}
+      - NEXT_PUBLIC_STRAPI_ADMIN_TOKEN={{ next_public_strapi_admin_token }}
       - NODE_ENV=production
     networks:
       apps:

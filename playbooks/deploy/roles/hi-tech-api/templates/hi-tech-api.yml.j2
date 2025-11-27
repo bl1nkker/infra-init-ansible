@@ -50,6 +50,7 @@ services:
         # - traefik.http.routers.hi-tech-api-router.middlewares=hi-tech-api-middleware
         # - traefik.http.middlewares.hi-tech-api-middleware.stripprefix.prefixes=/backend
         - traefik.http.services.hi-tech-api-service.loadbalancer.server.port=1337
+        - shepherd.autodeploy=true
   
 volumes:
   app-data:
