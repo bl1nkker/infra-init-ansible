@@ -1,0 +1,35 @@
+[http.routers]
+  [http.routers.canary-router]
+    rule = "Host(`{{ librechat_canary_domain }}`)"
+    entrypoints=["http", "https"]
+    service="canary-weighted-service"
+
+    [http.routers.canary-router.tls]
+      certResolver = "letsencrypt"
+
+    [http.routers.canary-router.observability]
+      metrics = true
+      accessLogs = true
+      tracing = true
+
+
+[http.services]
+  [http.services.canary-weighted-service]
+    [http.services.canary-weighted-service.weighted.sticky.cookie]
+      name = "lvl1"
+    [[http.services.canary-weighted-service.weighted.services]]
+      name="librechat-main-service"
+      weight=1
+    [[http.services.canary-weighted-service.weighted.services]]
+      name="librechat-canary-service"
+      weight=1
+
+  [http.services.librechat-main-service]
+    [[http.services.librechat-main-service.loadbalancer.servers]]
+      url="http://librechat-main:3080"
+
+  [http.services.librechat-canary-service]
+    [[http.services.librechat-canary-service.loadbalancer.servers]]
+      url="http://librechat-canary:3080"
+
+
