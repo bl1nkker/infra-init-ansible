@@ -1,0 +1,31 @@
+services:
+  service:
+    image: adinamei/narxoz-report-form:0.0.1-amd
+    networks:
+      apps:
+        aliases:
+          - narxoz-protocol-ui
+    deploy:
+      mode: replicated
+      placement:
+        constraints:
+          - node.labels.app-ui == true
+      labels:
+        {% if protocol_ui_domain | length > 0 -%}
+        - traefik.http.routers.narxoz-protocol-ui-router.rule=Host(`{{ protocol_ui_domain }}`)
+        - traefik.http.routers.narxoz-protocol-ui-router.tls=true
+        - traefik.http.routers.narxoz-protocol-ui-router.tls.certresolver=letsencrypt
+        {% else -%}
+        - traefik.http.routers.narxoz-protocol-ui-router.rule=PathPrefix(`/`) && Header(`X-INFRA-SERVICE`, `narxoz-protocol-ui`)
+        {% endif -%}
+
+        - traefik.enable=true
+        - traefik.http.routers.narxoz-protocol-ui-router.entrypoints=http,https
+        - traefik.http.services.narxoz-protocol-ui-service.loadbalancer.server.port=3000
+        - shepherd.autodeploy=true
+
+
+networks:
+  apps:
+    driver: overlay
+    external: true
